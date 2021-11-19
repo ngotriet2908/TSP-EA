@@ -46,7 +46,7 @@ class TspEa:
         self.tsp = tsp
         self.k = 3
         self.iteration = 100
-        self.init_alpha = 0.25  # probability of applying mutation
+        self.init_alpha = 0.05  # probability of applying mutation
         # self.init_alpha = max(0.01, 0.1 + 0.02 * np.random.randn())
         self.population = self.initialize()
         self.objf = tsp.fitness
@@ -74,7 +74,7 @@ class TspEa:
 
     def get_results(self):
         population_fitness = [self.tsp.fitness(x) for x in self.population]
-        min_val = self.tsp.max_elem
+        min_val = self.tsp.max_elem * (self.tsp.N + 1)
         min_elem = None
         for i in range(len(population_fitness)):
             if population_fitness[i] < min_val:
@@ -84,10 +84,15 @@ class TspEa:
 
     def mutation(self, ind: Individual) -> Individual:
         if random.random() < ind.alpha:
-            for x in range(int(len(ind.order) * 0.1)):
-                idx1 = random.randint(0, len(ind.order) - 1)
-                idx2 = random.randint(0, len(ind.order) - 1)
-                ind.order[idx1], ind.order[idx2] = ind.order[idx2], ind.order[idx1]
+            # for x in range(int(len(ind.order) * 0.1)):
+            #     idx1 = random.randint(0, len(ind.order) - 1)
+            #     idx2 = random.randint(0, len(ind.order) - 1)
+            #     ind.order[idx1], ind.order[idx2] = ind.order[idx2], ind.order[idx1]
+
+            idx1 = random.randint(0, len(ind.order) - 2)
+            idx2 = random.randint(idx1 + 1, len(ind.order) - 1)
+            np.random.shuffle(ind.order[idx1, idx2])
+
         return ind
 
     def selection(self) -> Individual:
@@ -172,6 +177,7 @@ class r0896104:
         # print(distance_matrix[0])
         max_elem = self.max_int / np.shape(distance_matrix)[0]
         distance_matrix[distance_matrix <= 0.0] = max_elem
+        distance_matrix[distance_matrix == np.inf] = max_elem
         # print(distanceMatrix[0])
         file.close()
 
@@ -186,7 +192,7 @@ class r0896104:
               "Mean fitness= ", meanObjective,
               # "variance fitness= ", stats.variance(population_fitness),
               "Best fitness= ", bestObjective,
-              "Best Solution= ", bestSolution
+              # "Best Solution= ", bestSolution
               # "Best KS= ", self.population[0].order,
               )
 
@@ -217,7 +223,7 @@ class r0896104:
                   "Mean fitness= ", meanObjective,
                   # "variance fitness= ", stats.variance(population_fitness),
                   "Best fitness= ", bestObjective,
-                  "Best Solution= ", bestSolution
+                  # "Best Solution= ", bestSolution
                   # "Best KS= ", self.population[0].order,
                   )
             timeLeft = self.reporter.report(meanObjective, bestObjective, bestSolution)
