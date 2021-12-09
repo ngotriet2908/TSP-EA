@@ -71,26 +71,26 @@ class TSP:
 class TspEa:
     def __init__(self, tsp: TSP):
         # self.lamda = 50
-        # self.lamda = 40
-        self.multi_threading = True
-        self.lamda = 30
+        self.lamda = 40
+        # self.lamda = 30
         # self.lamda = 20
 
         # self.mu = self.lamda
         self.mu = self.lamda * 2
+        self.multi_threading = True
 
         self.tsp = tsp
         self.k = 2
-        self.init_alpha = 0.01  # probability of applying mutation
+        self.init_alpha = 0.00  # probability of applying mutation
         # self.objf = tsp.fitness
         # self.objf = lambda xx, pop=None, beta_init=0: self.shared_fitness_wrapper(tsp.fitness, xx, pop, beta_init)
         # self.objf = self.shared_fitness_wrapper
         self.true_fitness = tsp.fitness
 
-        self.adaptive_mutation_step = 0.3
+        self.adaptive_mutation_step = 0.2
 
         # self.init_population_multiplier = 10
-        self.init_population_multiplier = 10
+        self.init_population_multiplier = 5
 
         self.distance = self.hamming_distance
         # self.distance = self.kendal_tau_distance
@@ -128,7 +128,7 @@ class TspEa:
     def one_iteration(self, population):
         offsprings: List[Individual] = list()
 
-        for j in range(self.mu//2):
+        for j in range(self.mu // 2):
             p1 = self.selection(population)
             p2 = self.selection(population)
             c = self.recombination(p1, p2)
@@ -150,8 +150,14 @@ class TspEa:
         if self.multi_threading:
             p = Pool(processes=2)
 
-            pool_res = p.map(self.apply_local_search, [population[0: (len(population) // 2)],
-                                            population[(len(population) // 2): len(population)]])
+            pool_res = p.map(
+                self.apply_local_search,
+                [
+                    population[0: (len(population) // 2)],
+                    population[(len(population) // 2): len(population)]
+                ]
+            )
+
             population[0: (len(population) // 2)] = pool_res[0]
             population[(len(population) // 2): len(population)] = pool_res[1]
         else:
@@ -603,7 +609,7 @@ if __name__ == '__main__':
 
     for _ in range(1):
         f = r0896104()
-        mean_objs, best_objs = f.optimize("tours/tour250.csv")
+        mean_objs, best_objs = f.optimize("tours/tour750.csv")
         x_axis = list(np.arange(len(mean_objs)))
         plt.plot(x_axis, mean_objs, label="Mean objective")
         plt.plot(x_axis, best_objs, label="Best objective")
